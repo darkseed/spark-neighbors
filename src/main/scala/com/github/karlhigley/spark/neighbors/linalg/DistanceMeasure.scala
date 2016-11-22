@@ -1,7 +1,8 @@
 package com.github.karlhigley.spark.neighbors.linalg
 
 import breeze.linalg.norm
-import org.apache.spark.mllib.linalg.{LinalgShim, SparseVector, Vectors, Vector ⇒ MLLibVector}
+import com.github.fommil.netlib.BLAS.{getInstance => blas}
+import org.apache.spark.mllib.linalg.{LinalgShim, SparseVector, Vector ⇒ MLLibVector}
 
 /**
   * This abstract base class provides the interface for
@@ -29,9 +30,13 @@ final object CosineDistance extends DistanceMeasure {
     * BLAS method.
     */
   def apply(v1: MLLibVector, v2: MLLibVector): Double = {
-    val dotProduct = LinalgShim.dot(v1, v2)
-    val norms = Vectors.norm(v1, 2) * Vectors.norm(v2, 2)
-    1.0 - (math.abs(dotProduct) / norms)
+    val n = v1.size
+    val vec1 = v1.toArray
+    val vec2 = v2.toArray
+    val dotProduct = blas.ddot(n, vec1, 1, vec2, 1)
+    val norm1 = blas.dnrm2(n, vec1, 1)
+    val norm2 = blas.dnrm2(n, vec2, 1)
+    1.0 - (dotProduct / norm1 / norm2)
   }
 }
 
