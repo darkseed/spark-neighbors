@@ -7,7 +7,6 @@ import com.github.karlhigley.spark.neighbors.collision.{BandingCollisionStrategy
 import com.github.karlhigley.spark.neighbors.linalg._
 import com.github.karlhigley.spark.neighbors.lsh.ScalarRandomProjectionFunction.{generateFractional, generateL1, generateL2}
 import com.github.karlhigley.spark.neighbors.lsh._
-import org.apache.spark.mllib.linalg.{Vector => MLLibVector}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
@@ -49,9 +48,7 @@ class ANN private (
   /**
    * Number of hash tables to compute
    */
-  def getTables(): Int = {
-    numTables
-  }
+  def getTables: Int = numTables
 
   /**
    * Number of hash tables to compute
@@ -64,9 +61,7 @@ class ANN private (
   /**
    * Number of elements in each signature (e.g. # signature bits for sign-random-projection)
    */
-  def getSignatureLength(): Int = {
-    signatureLength
-  }
+  def getSignatureLength: Int = signatureLength
 
   /**
    * Number of elements in each signature (e.g. # signature bits for sign-random-projection)
@@ -79,9 +74,7 @@ class ANN private (
   /**
    * Bucket width (commonly named "W") used by scalar-random-projection hash functions.
    */
-  def getBucketWidth(): Double = {
-    bucketWidth
-  }
+  def getBucketWidth: Double = bucketWidth
 
   /**
    * Bucket width (commonly named "W") used by scalar-random-projection hash functions.
@@ -98,9 +91,7 @@ class ANN private (
   /**
    * Common prime modulus used by minhash functions.
    */
-  def getPrimeModulus(): Int = {
-    primeModulus
-  }
+  def getPrimeModulus: Int = primeModulus
 
   /**
    * Common prime modulus used by minhash functions.
@@ -119,9 +110,7 @@ class ANN private (
   /**
    * Number of bands to use for minhash candidate pair generation
    */
-  def getBands(): Int = {
-    numBands
-  }
+  def getBands: Int = numBands
 
   /**
    * Number of bands to use for minhash candidate pair generation
@@ -138,9 +127,7 @@ class ANN private (
   /**
    * Random seed used to generate hash functions
    */
-  def getRandomSeed(): Int = {
-    randomSeed
-  }
+  def getRandomSeed: Int = randomSeed
 
   /**
    * Random seed used to generate hash functions
@@ -164,56 +151,40 @@ class ANN private (
 
     val (distanceMeasure, hashFunctions, candidateStrategy) = measureName.toLowerCase match {
 
-      case "hamming" => {
-        val hashFunctions: Seq[LSHFunction[_]] = (1 to numTables).map(i => BitSamplingFunction.generate(origDimension, signatureLength, random))
-
+      case "hamming" ⇒
+        val hashFunctions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ BitSamplingFunction.generate(origDimension, signatureLength, random))
         (HammingDistance, hashFunctions, SimpleCollisionStrategy)
-      }
 
-      case "cosine" => {
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => SignRandomProjectionFunction.generate(origDimension, signatureLength, random))
-
+      case "cosine" ⇒
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ SignRandomProjectionFunction.generate(origDimension, signatureLength, random))
         (CosineDistance, functions, SimpleCollisionStrategy)
-      }
 
-      case "euclidean" => {
+      case "euclidean" ⇒
         require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => generateL2(origDimension, signatureLength, bucketWidth, random))
-
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateL2(origDimension, signatureLength, bucketWidth, random))
         (EuclideanDistance, functions, SimpleCollisionStrategy)
-      }
 
-      case "manhattan" => {
+      case "manhattan" ⇒
         require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => generateL1(origDimension, signatureLength, bucketWidth, random))
-
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateL1(origDimension, signatureLength, bucketWidth, random))
         (ManhattanDistance, functions, SimpleCollisionStrategy)
-      }
 
-      case "fractional" => {
+      case "fractional" ⇒
         require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => generateFractional(origDimension, signatureLength, bucketWidth, random))
-
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateFractional(origDimension, signatureLength, bucketWidth, random))
         (FractionalDistance, functions, SimpleCollisionStrategy)
-      }
 
-      case "jaccard" => {
+      case "jaccard" ⇒
         require(primeModulus > 0, "Prime modulus must be greater than zero.")
         require(numBands > 0, "Number of bands must be greater than zero.")
         require(
           signatureLength % numBands == 0,
           "Number of bands must evenly divide signature length."
         )
-
-        val hashFunctions: Seq[LSHFunction[_]] = (1 to numTables).map(i => MinhashFunction.generate(origDimension, signatureLength, primeModulus, random))
-
+        val hashFunctions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ MinhashFunction.generate(origDimension, signatureLength, primeModulus, random))
         (JaccardDistance, hashFunctions, new BandingCollisionStrategy(numBands))
-      }
 
-      case other: Any =>
+      case other: Any ⇒
         throw new IllegalArgumentException(
           s"Only hamming, cosine, euclidean, manhattan, and jaccard distances are supported but got $other."
         )
@@ -235,43 +206,30 @@ class ANN private (
 
     val (distanceMeasure, hashFunctions) = measureName.toLowerCase match {
 
-      case "hamming" => {
-        val hashFunctions: Seq[LSHFunction[_]] = (1 to numTables).map(i => BitSamplingFunction.generate(origDimension, signatureLength, random))
-
+      case "hamming" ⇒
+        val hashFunctions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ BitSamplingFunction.generate(origDimension, signatureLength, random))
         (HammingDistance, hashFunctions)
-      }
 
-      case "cosine" => {
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => SignRandomProjectionFunction.generate(origDimension, signatureLength, random))
-
+      case "cosine" ⇒
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ SignRandomProjectionFunction.generate(origDimension, signatureLength, random))
         (CosineDistance, functions)
-      }
 
-      case "euclidean" => {
+      case "euclidean" ⇒
         require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => generateL2(origDimension, signatureLength, bucketWidth, random))
-
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateL2(origDimension, signatureLength, bucketWidth, random))
         (EuclideanDistance, functions)
-      }
 
-      case "manhattan" => {
+      case "manhattan" ⇒
         require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => generateL1(origDimension, signatureLength, bucketWidth, random))
-
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateL1(origDimension, signatureLength, bucketWidth, random))
         (ManhattanDistance, functions)
-      }
 
-      case "fractional" => {
+      case "fractional" ⇒
         require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i => generateFractional(origDimension, signatureLength, bucketWidth, random))
-
+        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateFractional(origDimension, signatureLength, bucketWidth, random))
         (FractionalDistance, functions)
-      }
 
-      case other: Any =>
+      case other: Any ⇒
         throw new IllegalArgumentException(
           s"Only hamming, cosine, euclidean, and manhattan distances are supported but got $other."
         )
