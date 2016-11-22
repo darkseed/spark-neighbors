@@ -2,37 +2,37 @@ package com.github.karlhigley.spark.neighbors.lsh
 
 import scala.collection.immutable.BitSet
 
-import org.apache.spark.mllib.linalg.{ Vector => MLLibVector }
+import org.apache.spark.mllib.linalg.{Vector ⇒ MLLibVector}
 
 /**
- * This wrapper class allows ANNModel to ignore the
- * type of the hash signatures in its hash tables.
- */
+  * This wrapper class allows ANNModel to ignore the
+  * type of the hash signatures in its hash tables.
+  */
 sealed trait Signature[+T] extends Any {
   val elements: T
 }
 
 /**
- * Signature type for sign-random-projection LSH
- */
+  * Signature type for sign-random-projection LSH
+  */
 final case class BitSignature(elements: BitSet) extends AnyVal with Signature[BitSet]
 
 /**
- * Signature type for scalar-random-projection LSH
- */
+  * Signature type for scalar-random-projection LSH
+  */
 final case class IntSignature(elements: Array[Int]) extends AnyVal with Signature[Array[Int]]
 
 /**
- * A hash table entry containing an id, a signature, and
- * a table number, so that all hash tables can be stored
- * in a single RDD.
- */
+  * A hash table entry containing an id, a signature, and
+  * a table number, so that all hash tables can be stored
+  * in a single RDD.
+  */
 sealed abstract class HashTableEntry[+S <: Signature[_]] {
 
-  val id: Long
-  val table: Int
+  val id       : Long
+  val table    : Int
   val signature: S
-  val point: MLLibVector
+  val point    : MLLibVector
 
   def sigElements: Array[Int]
 

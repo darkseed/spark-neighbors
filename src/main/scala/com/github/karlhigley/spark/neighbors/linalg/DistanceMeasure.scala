@@ -1,21 +1,19 @@
 package com.github.karlhigley.spark.neighbors.linalg
 
 import breeze.linalg.norm
-import org.apache.spark.mllib.linalg.{ SparseVector, Vectors, Vector => MLLibVector }
-
-import org.apache.spark.mllib.linalg.LinalgShim
+import org.apache.spark.mllib.linalg.{LinalgShim, SparseVector, Vectors, Vector ⇒ MLLibVector}
 
 /**
- * This abstract base class provides the interface for
- * distance measures to be used in computing the actual
- * distances between candidate pairs.
- *
- * It's framed in terms of distance rather than similarity
- * to provide a common interface that works for Euclidean
- * distance along with other distances. (Cosine distance is
- * admittedly not a proper distance measure, but is computed
- * similarly nonetheless.)
- */
+  * This abstract base class provides the interface for
+  * distance measures to be used in computing the actual
+  * distances between candidate pairs.
+  *
+  * It's framed in terms of distance rather than similarity
+  * to provide a common interface that works for Euclidean
+  * distance along with other distances. (Cosine distance is
+  * admittedly not a proper distance measure, but is computed
+  * similarly nonetheless.)
+  */
 sealed abstract class DistanceMeasure extends Serializable {
   def apply(v1: MLLibVector, v2: MLLibVector): Double
 }
@@ -23,13 +21,13 @@ sealed abstract class DistanceMeasure extends Serializable {
 final object CosineDistance extends DistanceMeasure {
 
   /**
-   * Compute cosine distance between vectors
-   *
-   * LinalgShim reaches into Spark's private linear algebra
-   * code to use a BLAS dot product. Could probably be
-   * replaced with a direct invocation of the appropriate
-   * BLAS method.
-   */
+    * Compute cosine distance between vectors
+    *
+    * LinalgShim reaches into Spark's private linear algebra
+    * code to use a BLAS dot product. Could probably be
+    * replaced with a direct invocation of the appropriate
+    * BLAS method.
+    */
   def apply(v1: MLLibVector, v2: MLLibVector): Double = {
     val dotProduct = LinalgShim.dot(v1, v2)
     val norms = Vectors.norm(v1, 2) * Vectors.norm(v2, 2)
@@ -70,12 +68,12 @@ final object FractionalDistance extends DistanceMeasure {
 final object HammingDistance extends DistanceMeasure {
 
   /**
-   * Compute Hamming distance between vectors
-   *
-   * Since MLlib doesn't support binary vectors, this uses
-   * sparse vectors and considers any active (i.e. non-zero)
-   * index to represent a set bit
-   */
+    * Compute Hamming distance between vectors
+    *
+    * Since MLlib doesn't support binary vectors, this uses
+    * sparse vectors and considers any active (i.e. non-zero)
+    * index to represent a set bit
+    */
   def apply(v1: MLLibVector, v2: MLLibVector): Double = {
     val i1 = v1.asInstanceOf[SparseVector].indices.toSet
     val i2 = v2.asInstanceOf[SparseVector].indices.toSet
@@ -87,12 +85,12 @@ final object HammingDistance extends DistanceMeasure {
 final object JaccardDistance extends DistanceMeasure {
 
   /**
-   * Compute Jaccard distance between vectors
-   *
-   * Since MLlib doesn't support binary vectors, this uses
-   * sparse vectors and considers any active (i.e. non-zero)
-   * index to represent a member of the set
-   */
+    * Compute Jaccard distance between vectors
+    *
+    * Since MLlib doesn't support binary vectors, this uses
+    * sparse vectors and considers any active (i.e. non-zero)
+    * index to represent a member of the set
+    */
   def apply(v1: MLLibVector, v2: MLLibVector): Double = {
     val indices1 = v1.asInstanceOf[SparseVector].indices.toSet
     val indices2 = v2.asInstanceOf[SparseVector].indices.toSet

@@ -108,25 +108,6 @@ class ANNSuite extends FunSuite with TestSparkContext {
     runAssertions(localHashTables, localNeighbors)
   }
 
-  test("compute fractional nearest neighbors as a batch") {
-    val ann =
-      new ANN(dimensions, "fractional")
-        .setTables(10)
-        .setSignatureLength(4)
-        .setBucketWidth(250)
-
-    val model = ann.train(sparsePoints)
-    val neighbors = model.neighbors(10)
-
-    val localHashTables = model.hashTables.collect
-    val localNeighbors  = neighbors.collect
-    val nrNeighbors     = localNeighbors.length
-
-    println(s"Manhattan nr neighbors: $nrNeighbors")
-
-    runAssertions(localHashTables, localNeighbors)
-  }
-
   test("compute jaccard nearest neighbors as a batch") {
     val ann =
       new ANN(dimensions, "jaccard")
@@ -160,13 +141,12 @@ class ANNSuite extends FunSuite with TestSparkContext {
     val localNeighbors = neighbors.collect()
 
     localNeighbors.foreach {
-      case (id1, distances) => {
+      case (id1, distances) =>
         val neighborSet = distances.map {
           case (id2, distance) => id2
         }.toSet
 
-        assert(neighborSet.size == distances.size)
-      }
+        assert(neighborSet.size == distances.length)
     }
   }
 
@@ -191,22 +171,21 @@ object ANNSuite {
                     neighbors: Array[(Long, Array[(Long, Double)])]): Unit = {
 
     // At least some neighbors are found
-    assert(neighbors.size > 0)
+    assert(neighbors.length > 0)
 
     neighbors.foreach {
-      case (id1, distances) => {
+      case (id1, distances) =>
         var maxDist = 0.0
         distances.foreach {
-          case (id2, distance) => {
+          case (id2, distance) =>
             // No neighbor pair contains the same ID twice
             assert(id1 != id2)
 
             // The neighbors are sorted in ascending order of distance
             assert(distance >= maxDist)
             maxDist = distance
-          }
         }
-      }
     }
   }
+
 }

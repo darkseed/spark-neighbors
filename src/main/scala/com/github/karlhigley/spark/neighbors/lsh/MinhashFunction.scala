@@ -2,39 +2,39 @@ package com.github.karlhigley.spark.neighbors.lsh
 
 import java.util.Random
 
-import org.apache.spark.mllib.linalg.{SparseVector, Vector => MLLibVector}
+import org.apache.spark.mllib.linalg.{SparseVector, Vector ⇒ MLLibVector}
 
 /**
- *
- * References:
- *  - Broder, A. "On the resemblance and containment of documents."
- *    Compression and Complexity of Sequences: Proceedings, 1997.
- *
- * @see [[https://en.wikipedia.org/wiki/MinHash MinHash (Wikipedia)]]
- */
+  *
+  * References:
+  * - Broder, A. "On the resemblance and containment of documents."
+  * Compression and Complexity of Sequences: Proceedings, 1997.
+  *
+  * @see [[https://en.wikipedia.org/wiki/MinHash MinHash (Wikipedia)]]
+  */
 class MinhashFunction(val permutations: Array[PermutationFunction]) extends LSHFunction[IntSignature] with Serializable {
 
   /**
-   * Compute minhash signature for a vector.
-   *
-   * Since Spark doesn't support binary vectors, this uses
-   * SparseVectors and treats any active element of the vector
-   * as a member of the set. Note that "active" includes explicit
-   * zeros, which should not (but still might) be present in SparseVectors.
-   */
-  def signature(vector: MLLibVector): IntSignature = {
-    val sig = permutations.map(p => {
-      vector.asInstanceOf[SparseVector].indices.map(p.apply).min
-    })
-
-    new IntSignature(sig)
+    * Build a hash table entry for the supplied vector
+    */
+  def hashTableEntry(id: Long, table: Int, v: MLLibVector): IntHashTableEntry = {
+    IntHashTableEntry(id, table, signature(v), v)
   }
 
   /**
-   * Build a hash table entry for the supplied vector
-   */
-  def hashTableEntry(id: Long, table: Int, v: MLLibVector): IntHashTableEntry = {
-    IntHashTableEntry(id, table, signature(v), v)
+    * Compute minhash signature for a vector.
+    *
+    * Since Spark doesn't support binary vectors, this uses
+    * SparseVectors and treats any active element of the vector
+    * as a member of the set. Note that "active" includes explicit
+    * zeros, which should not (but still might) be present in SparseVectors.
+    */
+  def signature(vector: MLLibVector): IntSignature = {
+    val sig = permutations.map { p ⇒
+      vector.asInstanceOf[SparseVector].indices.map(p.apply).min
+    }
+
+    new IntSignature(sig)
   }
 
 }
@@ -42,8 +42,8 @@ class MinhashFunction(val permutations: Array[PermutationFunction]) extends LSHF
 object MinhashFunction {
 
   /**
-   * Randomly generate a new minhash function
-   */
+    * Randomly generate a new minhash function
+    */
   def generate(dimensions: Int,
                signatureLength: Int,
                prime: Int,

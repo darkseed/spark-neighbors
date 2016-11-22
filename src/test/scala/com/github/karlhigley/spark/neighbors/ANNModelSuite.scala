@@ -1,11 +1,8 @@
 package com.github.karlhigley.spark.neighbors
 
-import org.scalatest.FunSuite
-
+import org.apache.spark.mllib.linalg.{Vector ⇒ MLLibVector}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.linalg.{ Vector => MLLibVector }
-
-import com.github.karlhigley.spark.neighbors.lsh.HashTableEntry
+import org.scalatest.FunSuite
 
 class ANNModelSuite extends FunSuite with TestSparkContext {
   val numPoints = 1000

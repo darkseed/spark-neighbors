@@ -1,16 +1,16 @@
 package com.github.karlhigley.spark.neighbors
 
-import org.apache.spark.mllib.linalg.{ Vector => MLLibVector }
-import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfter, FunSuite }
+import org.apache.spark.mllib.linalg.{Vector ⇒ MLLibVector}
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 /**
- * @author Thomas Moerman
- */
+  * @author Thomas Moerman
+  */
 class SimpleANNModelSuite extends FunSuite with BeforeAndAfterAll {
 
-  val numPoints = 1000
+  val numPoints  = 1000
   val dimensions = 100
-  val density = 0.5
+  val density    = 0.5
 
   var points: Iterable[(Long, MLLibVector)] = _
 

@@ -1,17 +1,17 @@
 package com.github.karlhigley.spark.neighbors
 
-import java.util.{Random => JavaRandom}
+import java.util.{Random ⇒ JavaRandom}
+
+import scala.util.Random
 
 import com.github.karlhigley.spark.neighbors.ANNModel.Point
 import com.github.karlhigley.spark.neighbors.collision.{BandingCollisionStrategy, SimpleCollisionStrategy}
 import com.github.karlhigley.spark.neighbors.linalg._
-import com.github.karlhigley.spark.neighbors.lsh.ScalarRandomProjectionFunction.{generateFractional, generateL1, generateL2}
+import com.github.karlhigley.spark.neighbors.lsh.ScalarRandomProjectionFunction.{generateL1, generateL2}
 import com.github.karlhigley.spark.neighbors.lsh._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK
-
-import scala.util.Random
 
 /**
  * Approximate Nearest Neighbors (ANN) using locality-sensitive hashing (LSH)
@@ -169,11 +169,6 @@ class ANN private (
         val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateL1(origDimension, signatureLength, bucketWidth, random))
         (ManhattanDistance, functions, SimpleCollisionStrategy)
 
-      case "fractional" ⇒
-        require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateFractional(origDimension, signatureLength, bucketWidth, random))
-        (FractionalDistance, functions, SimpleCollisionStrategy)
-
       case "jaccard" ⇒
         require(primeModulus > 0, "Prime modulus must be greater than zero.")
         require(numBands > 0, "Number of bands must be greater than zero.")
@@ -223,11 +218,6 @@ class ANN private (
         require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
         val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateL1(origDimension, signatureLength, bucketWidth, random))
         (ManhattanDistance, functions)
-
-      case "fractional" ⇒
-        require(bucketWidth > 0.0, "Bucket width must be greater than zero.")
-        val functions: Seq[LSHFunction[_]] = (1 to numTables).map(i ⇒ generateFractional(origDimension, signatureLength, bucketWidth, random))
-        (FractionalDistance, functions)
 
       case other: Any ⇒
         throw new IllegalArgumentException(

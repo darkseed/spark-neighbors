@@ -1,14 +1,13 @@
 package com.github.karlhigley.spark.neighbors
 
-import org.scalatest.FunSuite
-
+import org.apache.spark.mllib.linalg.{Vector ⇒ MLLibVector}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.linalg.{ SparseVector, Vector => MLLibVector }
+import org.scalatest.{FunSuite, Outcome}
 
 class CollisionStrategySuite extends FunSuite with TestSparkContext {
-  val numPoints = 1000
+  val numPoints  = 1000
   val dimensions = 100
-  val density = 0.5
+  val density    = 0.5
 
   var points: RDD[(Long, MLLibVector)] = _
 
@@ -49,5 +48,4 @@ class CollisionStrategySuite extends FunSuite with TestSparkContext {
 
     assert(collidable.count() == numPoints * numBands)
   }
-
 }

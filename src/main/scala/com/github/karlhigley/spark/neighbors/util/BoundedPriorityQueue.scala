@@ -1,14 +1,14 @@
 package com.github.karlhigley.spark.neighbors.util
 
 import java.io.Serializable
-import java.util.{ PriorityQueue => JPriorityQueue }
+import java.util.{PriorityQueue ⇒ JPriorityQueue}
 
 import scala.collection.JavaConverters._
 import scala.collection.generic.Growable
 
 /**
- * Copy of org.apache.spark.util.BoundedPriorityQueue which is private for..., eh reasons.
- */
+  * Copy of org.apache.spark.util.BoundedPriorityQueue which is private for..., eh reasons.
+  */
 class BoundedPriorityQueue[A](maxSize: Int)
                              (implicit ord: Ordering[A]) extends Iterable[A] with Growable[A] with Serializable {
 
@@ -16,10 +16,14 @@ class BoundedPriorityQueue[A](maxSize: Int)
 
   override def iterator: Iterator[A] = underlying.iterator.asScala
 
-  override def size: Int = underlying.size
+  override def +=(elem1: A, elem2: A, elems: A*): this.type = {
+    this += elem1 += elem2 ++= elems
+  }
 
   override def ++=(xs: TraversableOnce[A]): this.type = {
-    xs.foreach { this += _ }
+    xs.foreach {
+      this += _
+    }
     this
   }
 
@@ -33,11 +37,7 @@ class BoundedPriorityQueue[A](maxSize: Int)
     this
   }
 
-  override def +=(elem1: A, elem2: A, elems: A*): this.type = {
-    this += elem1 += elem2 ++= elems
-  }
-
-  override def clear() { underlying.clear() }
+  override def size: Int = underlying.size
 
   private def maybeReplaceLowest(a: A): Boolean = {
     val head = underlying.peek()
@@ -48,6 +48,10 @@ class BoundedPriorityQueue[A](maxSize: Int)
     } else {
       false
     }
+  }
+
+  override def clear() {
+    underlying.clear()
   }
 
 }

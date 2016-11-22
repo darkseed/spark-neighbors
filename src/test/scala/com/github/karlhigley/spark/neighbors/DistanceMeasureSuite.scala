@@ -1,13 +1,11 @@
 package com.github.karlhigley.spark.neighbors
 
+import com.github.karlhigley.spark.neighbors.linalg._
+import org.apache.spark.mllib.linalg.{DenseVector, SparseVector}
 import org.scalatest.FunSuite
 
-import org.apache.spark.rdd.RDD
-import org.apache.spark.mllib.linalg.{DenseVector, SparseVector}
-
-import com.github.karlhigley.spark.neighbors.linalg._
-
 class DistanceMeasureSuite extends FunSuite with TestSparkContext {
+
   import org.scalactic.Tolerance._
 
   val values = Array(1.0, 1.0, 1.0, 1.0)
