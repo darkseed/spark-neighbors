@@ -6,7 +6,9 @@ description := "Spark-based approximate nearest neighbor search using locality-s
 
 scalaVersion := "2.11.8"
 
-sparkVersion    := "2.0.1"
+crossScalaVersions := Seq("2.11.8", "2.10.6")
+
+sparkVersion    := "2.0.2"
 sparkComponents := Seq("core", "mllib")
 
 val testSparkVersion = settingKey[String]("The version of Spark to test against.")
@@ -14,7 +16,7 @@ testSparkVersion := sparkVersion.value
 
 libraryDependencies ++= Seq(
   "org.scalanlp"  %% "breeze"    % "0.12",
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
 
 libraryDependencies ++= Seq(
